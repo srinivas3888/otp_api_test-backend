@@ -57,7 +57,6 @@ def store_user(name, email) -> None:
     
 
 @app.post("/send-sms")
-                        # is_store_data: str=Form(...)
 def send(name: str=Form(...), email: str=Form(...), is_store_data: str=Form(...)):
     if verify_user(email)==True:
         return {"status":"Success", "det":f"Hey {name}, You are already a Subscriber\nPlease try with another E-mail"}
