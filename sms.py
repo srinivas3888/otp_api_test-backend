@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import smtplib
 from email.message import EmailMessage
 import random
-import json
 import os
 
 app = FastAPI()
@@ -20,73 +19,52 @@ app.add_middleware(
 
 global otp_g
 otp_g=""
-global data
-data=dict()
 
 def generate_otp() -> str:
     global otp_g
     otp_g = str( random.randrange(1000, 9999) )
     return otp_g
-
-def verify_user(email) -> bool:
-    f='data.json'
-    if os.path.exists(f):
-        fp=open(f, 'r')
-        global data
-        data=json.load(fp)
-        fp.close()
-    else:
-        fp=open(f, 'w')
-        x=dict()
-        json.dump(x, fp, indent=4)
-        fp.close()
-        
-    try:
-        d=data[str(email)]
-        return True
-    except:
-        return False
-    
-def store_user(name, email) -> None:
-    f=open("data.json", "w")
-    global data
-    data[str(email)]=str(name)
-    json.dump(data, f, indent=4)
-    f.close()
-    return
     
 
 @app.post("/send-sms")
-def send(name: str=Form(...), email: str=Form(...), is_store_data: str=Form(...)):
-    if verify_user(email)==True:
-        return {"status":"Success", "det":f"Hey {name}, You are already a Subscriber\nPlease try with another E-mail"}
-    else:
+def send(name: str=Form(...), email: str=Form(...), check: str=Form(...)):
+    body=""
+    otp=""
+    if check=="0":
         otp = generate_otp()
-        body=""
-        if is_store_data=="TRUE":
-            store_user(name, email)
-            body = f"Hello {name},\nThank You for Subscribing to us.\nThis is your OTP: {otp}.\n\tTeam - Headline Hub"
-        else:
-            body = f"Hello {name},\nThis is your OTP: {otp}"
-            
-        try:
-            msg = EmailMessage()
-            msg.set_content(body)
-            msg['subject']=otp
-            msg['to']=email
-            from_email = os.getenv("EMAIL")
-            password = os.getenv("PASSWORD")
-            
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.starttls()
-            server.login(from_email, password)
-            server.send_message(msg)
-            server.quit()
-            
-            return {"status":"Success", "det":f"OTP successfully sent to {email}"}
+        body = f"Hello {name},\nThank You for Subscribing to us.\nThis is your OTP: {otp}.\n\tTeam - Headline Hub"
         
-        except Exception as e:
-            return {"status":"Failed", "det":f"{HTTPException(status_code=500, detail=str(e))}"}
+    elif check=="1":
+        otp = generate_otp()
+        body = f"Hello {name},\nThis is your OTP: {otp}.\n\tTeam - ZARTEX"
+        
+    else:
+        custom_msg: str=Form(...)               # custom msg
+        body = f"Hello {name},\n{custom_msg}\n\tTeam - ZARTEX"
+        
+    try:
+        msg = EmailMessage()
+        msg.set_content(body)
+        if otp=="":
+            custom_sub: str=Form(...)           # custom subject
+            msg['subject']=custom_sub
+        else:
+            msg['subject']=otp
+            
+        msg['to']=email
+        from_email = os.getenv("EMAIL")
+        password = os.getenv("PASSWORD")
+        
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(from_email, password)
+        server.send_message(msg)
+        server.quit()
+        
+        return {"status":"Success", "det":f"OTP successfully sent to {email}"}
+    
+    except Exception as e:
+        return {"status":"Failed", "det":f"{HTTPException(status_code=500, detail=str(e))}"}
 
 
 @app.post("/verify-otp")
