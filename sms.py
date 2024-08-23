@@ -42,7 +42,6 @@ def verify_user(email) -> bool:
         fp.close()
         
     try:
-        global data
         d=data[str(email)]
         return True
     except:
