@@ -20,26 +20,37 @@ app.add_middleware(
 
 global otp_g
 otp_g=""
+global data
+data=dict()
+
 def generate_otp() -> str:
     global otp_g
     otp_g = str( random.randrange(1000, 9999) )
     return otp_g
 
 def verify_user(email) -> bool:
-    f=open("data.json", "r")
-    data=json.load(f)
-    f.close()
+    f='data.json'
+    if os.path.exists(f):
+        fp=open(f, 'r')
+        global data
+        data=json.load(fp)
+        fp.close()
+    else:
+        fp=open(f, 'w')
+        x=dict()
+        json.dump(x, fp, indent=4)
+        fp.close()
+        
     try:
+        global data
         d=data[str(email)]
         return True
     except:
         return False
     
 def store_user(name, email) -> None:
-    f=open("data.json", "r")
-    data=json.load(f)
-    f.close()
     f=open("data.json", "w")
+    global data
     data[str(email)]=str(name)
     json.dump(data, f, indent=4)
     f.close()
@@ -48,17 +59,13 @@ def store_user(name, email) -> None:
 
 @app.post("/send-sms")
                         # is_store_data: str=Form(...)
-def send(name: str=Form(...), email: str=Form(...)):
-    # if verify_user(email)==True:
-    t="o"
-    if t=="i":
+def send(name: str=Form(...), email: str=Form(...), is_store_data: str=Form(...)):
+    if verify_user(email)==True:
         return {"status":"Success", "det":f"Hey {name}, You are already a Subscriber\nPlease try with another E-mail"}
     else:
         otp = generate_otp()
         body=""
-        # if is_store_data=="TRUE":
-        t="o"
-        if t=="i":
+        if is_store_data=="TRUE":
             store_user(name, email)
             body = f"Hello {name},\nThank You for Subscribing to us.\nThis is your OTP: {otp}.\n\tTeam - Headline Hub"
         else:
