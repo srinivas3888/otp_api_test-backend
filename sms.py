@@ -74,4 +74,12 @@ def verify(otp: str=Form(...)):
         return {"status":"Success", "det":f"E-mail Verified Successfully"}
     else:
         return {"status":"Failed", "det":f"OTP Entered is not matched"}
-    
+
+
+# Testing / Ping...
+@app.get("/test")
+def hello():
+    try:
+        return {"Success":"API is live."}
+    except Exception as e:
+        return {"Failed":str(e)}
