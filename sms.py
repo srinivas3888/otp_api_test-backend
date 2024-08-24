@@ -17,6 +17,11 @@ app.add_middleware(
 )
 
 
+# Colors in .py
+RED = "\033[91m"
+GREEN = "\033[92m"
+RESET = "\033[0m"
+
 global otp_g
 otp_g=""
 
@@ -32,7 +37,7 @@ def send(name: str=Form(...), email: str=Form(...), check: str=Form(...)):
     otp=""
     if check=="0":
         otp = generate_otp()
-        body = f"Hello {name},\nThank You for Subscribing to us.\nThis is your OTP: {otp}.\n\tTeam - Headline Hub"
+        body = f"Hello {name},\n{GREEN}Thank You for Subscribing to us.{RESET}\nThis is your OTP: {otp}.\n\t{RED}Team - Headline Hub \033[31m🌐 \033[0m {RESET}"
         
     elif check=="1":
         otp = generate_otp()
@@ -74,9 +79,8 @@ def verify(otp: str=Form(...)):
         return {"status":"Success", "det":f"E-mail Verified Successfully"}
     else:
         return {"status":"Failed", "det":f"OTP Entered is not matched"}
-
-
-# Testing / Ping...
+    
+# Testing/Ping
 @app.get("/test")
 def hello():
     try:
