@@ -4,9 +4,7 @@ import smtplib
 from email.message import EmailMessage
 import random
 import os
-
 app = FastAPI()
-
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -15,29 +13,20 @@ app.add_middleware(
     allow_methods=["*"],  # Allows all HTTP methods. You can restrict to specific methods if needed.
     allow_headers=["*"],  # Allows all headers. You can restrict to specific headers if needed.
 )
-
-
-# Colors in .py
-RED = "\033[91m"
-GREEN = "\033[92m"
-RESET = "\033[0m"
-
 global otp_g
 otp_g=""
-
 def generate_otp() -> str:
     global otp_g
     otp_g = str( random.randrange(1000, 9999) )
     return otp_g
     
-
 @app.post("/send-sms")
 def send(name: str=Form(...), email: str=Form(...), check: str=Form(...)):
     body=""
     otp=""
     if check=="0":
         otp = generate_otp()
-        body = f"Hello {name},\n{GREEN}Thank You for Subscribing to us.{RESET}\nThis is your OTP: {otp}.\n\t{RED}Team - Headline Hub \033[31m🌐 \033[0m {RESET}"
+        body = f"Hello {name},\nThank You for Subscribing to us.\nThis is your OTP: {otp}.\n\tTeam - Headline Hub"
         
     elif check=="1":
         otp = generate_otp()
@@ -70,8 +59,6 @@ def send(name: str=Form(...), email: str=Form(...), check: str=Form(...)):
     
     except Exception as e:
         return {"status":"Failed", "det":f"{HTTPException(status_code=500, detail=str(e))}"}
-
-
 @app.post("/verify-otp")
 def verify(otp: str=Form(...)):
     global otp_g
@@ -79,8 +66,10 @@ def verify(otp: str=Form(...)):
         return {"status":"Success", "det":f"E-mail Verified Successfully"}
     else:
         return {"status":"Failed", "det":f"OTP Entered is not matched"}
-    
-# Testing/Ping
+
+
+
+# Testing / Ping...
 @app.get("/test")
 def hello():
     try:
