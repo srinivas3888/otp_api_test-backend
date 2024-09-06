@@ -29,8 +29,9 @@ def send(name: str=Form(...), email: str=Form(...), check: str=Form(...)):
         body = f"Hello {name},\nThank You for Subscribing to us.\nThis is your OTP: {otp}.\n\tTeam - Headline Hub"
         
     elif check=="1":
-        otp = generate_otp()
-        body = f"Hello {name},\nThis is your OTP: {otp}.\n\tTeam - ZARTEX"
+        otp="1"
+        msg['subject']="Registration Successful || Guardian-Sphere"
+        body = f"Hello {name},\nThank you for Registration.\t Your all set \n\t - Guardian-Sphere"
         
     else:
         custom_msg: str=Form(...)               # custom msg
